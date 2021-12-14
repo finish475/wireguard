@@ -5,7 +5,7 @@ echo "======================================"
 echo "|     Automated WireGuard Script     |"
 echo "|        Named Peers with IDs        |"
 echo "======================================"
-# Define Variables
+#Define Variables
 echo -n "Defining variables... "
 export LAN="wgserver"
 export interface="10.0.5"
@@ -20,12 +20,12 @@ export user_1="iPhone"
 export user_2="Macbook"
 echo "Done"
  
-# Create directories
+#Create directories
 echo -n "Creating directories and pre-defining permissions on those directories... "
 mkdir -p /etc/wireguard/networks/${LAN}/peers
 echo "Done"
  
-# Remove pre-existing WireGuard interface
+#Remove pre-existing WireGuard interface
 echo -n "Removing pre-existing WireGuard interface... "
 uci del network.${LAN} >/dev/null 2>&1
 echo "Done"
