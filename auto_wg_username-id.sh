@@ -1,11 +1,9 @@
-cat <<-"SCRIPT_EOF" > "/root/auto_wg_username-id.sh"
 #!/bin/ash
 clear
 echo "======================================"
 echo "|     Automated WireGuard Script     |"
 echo "|        Named Peers with IDs        |"
 echo "======================================"
-
 echo -n "Defining variables... "
 export LAN="wgserver"
 export interface="10.0.5"
