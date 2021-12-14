@@ -7,7 +7,7 @@ echo "======================================"
 echo -n "Defining variables... "
 export LAN="wgserver"
 export interface="10.0.5"
-export DDNS="xn--thnh-6w5a.vn"
+export DDNS="your domain"
 export peer_ID="1" # The ID number to start from
 export peer_IP="2" # The IP address to start from
 export ${LAN}_server_port="61820"
