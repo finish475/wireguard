@@ -5,7 +5,7 @@ echo "======================================"
 echo "|     Automated WireGuard Script     |"
 echo "|        Named Peers with IDs        |"
 echo "======================================"
-#Define Variables
+
 echo -n "Defining variables... "
 export LAN="wgserver"
 export interface="10.0.5"
@@ -20,17 +20,14 @@ export user_1="iPhone"
 export user_2="Macbook"
 echo "Done"
  
-#Create directories
 echo -n "Creating directories and pre-defining permissions on those directories... "
 mkdir -p /etc/wireguard/networks/${LAN}/peers
 echo "Done"
  
-#Remove pre-existing WireGuard interface
 echo -n "Removing pre-existing WireGuard interface... "
 uci del network.${LAN} >/dev/null 2>&1
 echo "Done"
  
-# Generate WireGuard server keys
 echo -n "Generating WireGuard server keys for '${LAN}' network... "
 wg genkey | tee "/etc/wireguard/networks/${LAN}/${LAN}_server_private.key" | wg pubkey | tee "/etc/wireguard/networks/${LAN}/${LAN}_server_public.key" >/dev/null 2>&1
 echo "Done"
@@ -40,7 +37,6 @@ uci rename firewall.@zone[0]="lan"
 uci rename firewall.@zone[1]="wan"
 echo "Done"
  
-# Create WireGuard interface for 'LAN' network
 echo -n "Creating WireGuard interface for '${LAN}' network... "
 eval "server_port=\${${LAN}_server_port}"
 eval "server_IP=\${${LAN}_server_IP}"
@@ -54,7 +50,6 @@ uci set firewall.${LAN}.network="${firewall_zone} ${firewall_zone}"
 uci set network.${LAN}.mtu='1420'
 echo "Done"
  
-# Add firewall rule
 echo -n "Adding firewall rule for '${LAN}' network... "
 uci set firewall.wg="rule"
 uci set firewall.wg.name="Allow-WireGuard-${LAN}"
@@ -64,13 +59,11 @@ uci set firewall.wg.proto="udp"
 uci set firewall.wg.target="ACCEPT"
 echo "Done"
  
-# Remove existing peers
 echo -n "Removing pre-existing peers... "
 while uci -q delete network.@wireguard_${LAN}[0]; do :; done
 rm -R /etc/wireguard/networks/${LAN}/peers/* >/dev/null 2>&1
 echo "Done"
  
-# Loop
 n="0"
 while [ "$n" -lt ${quantity} ] ; 
 do
@@ -78,7 +71,6 @@ do
 	for username in ${user_1} ${user_2}
 	do
  
-		# Configure variables
 		eval "peer_ID_${username}=${peer_ID}"
 		eval "peer_IP_${username}=${peer_IP}"
  
@@ -89,22 +81,18 @@ do
 		eval "server_IP=\${${LAN}_server_IP}"
  
 		echo ""
-		# Create directory for storing peers
 		echo -n "Creating directory for peer '${peer_ID}_${LAN}_${username}'... " 
 		mkdir -p "/etc/wireguard/networks/${LAN}/peers/${peer_ID}_${LAN}_${username}"
 		echo "Done"
  
-		# Generate peer keys
 		echo -n "Generating peer keys for '${peer_ID}_${LAN}_${username}'... " 
 		wg genkey | tee "/etc/wireguard/networks/${LAN}/peers/${peer_ID}_${LAN}_${username}/${peer_ID}_${LAN}_${username}_private.key" | wg pubkey | tee "/etc/wireguard/networks/${LAN}/peers/${peer_ID}_${LAN}_${username}/${peer_ID}_${LAN}_${username}_public.key" >/dev/null 2>&1
 		echo "Done"
  
-		# Generate Pre-shared key
 		echo -n "Generating peer PSK for '${peer_ID}_${LAN}_${username}'... " 
 		wg genpsk | tee "/etc/wireguard/networks/${LAN}/peers/${peer_ID}_${LAN}_${username}/${peer_ID}_${LAN}_${username}.psk" >/dev/null 2>&1
 		echo "Done"
  
-		# Add peer to server 
 		echo -n "Adding '${peer_ID}_${LAN}_${username}' to WireGuard server... " 
 		uci add network wireguard_${LAN} >/dev/null 2>&1
 		uci set network.@wireguard_${LAN}[-1].public_key="$(cat /etc/wireguard/networks/${LAN}/peers/${peer_ID}_${LAN}_${username}/${peer_ID}_${LAN}_${username}_public.key)"
@@ -115,7 +103,6 @@ do
 		uci set network.@wireguard_${LAN}[-1].persistent_keepalive='25'
 		echo "Done"
  
-		# Create peer configuration
 		echo -n "Creating config for '${peer_ID}_${LAN}_${username}'... "
 		cat <<-EOF > "/etc/wireguard/networks/${LAN}/peers/${peer_ID}_${LAN}_${username}/${peer_ID}_${LAN}_${username}.conf"
 		[Interface]
@@ -132,24 +119,20 @@ do
 		EOF
 		echo "Done"
  
-		# Increment variables by '1'
 		peer_ID=$((peer_ID+1))
 		peer_IP=$((peer_IP+1))
 		n=$((n+1))
 	done
 done
  
-# Commit UCI changes
 echo -en "\nCommiting changes... "
 uci commit
 echo "Done"
  
-# Restart WireGuard interface
 echo -en "\nRestarting WireGuard interface... "
 ifup ${LAN}
 echo "Done"
  
-# Restart firewall
 echo -en "\nRestarting firewall... "
 /etc/init.d/firewall restart >/dev/null 2>&1
 echo "Done"
