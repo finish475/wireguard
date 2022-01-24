@@ -16,10 +16,10 @@ export ${LAN}_server_port="61820"
 export ${LAN}_server_IP="${interface}.1"
 export ${LAN}_server_firewall_zone="${LAN}"
 export quantity="4" # Change the number '2' to any number of peers you would like to create
-export user_1="iPhone1"
-export user_2="Macbook1"
-export user_3="iPhone2"
-export user_4="Macbook2"
+export user_1="iPhone"
+export user_2="Macbook"
+export user_3="iPhone"
+export user_4="Macbook"
 echo "Done"
 
 # Create directories
